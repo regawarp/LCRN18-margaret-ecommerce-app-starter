@@ -10,15 +10,25 @@ import { TextButton } from '../../components';
 import { COLORS, SIZES, constants, FONTS } from '../../constants'
 import Walkthrough1 from './Walkthrough1';
 import Walkthrough2 from './Walkthrough2';
+import Walkthrough3 from './Walkthrough3';
+import Walkthrough4 from './Walkthrough4';
 
 const Walkthrough = () => {
 
     // Walkthrough 2
     const [walkthrough2Animate, setWalkthrough2Animate] = React.useState(false);
 
+    const [walkthrough3Animate, setWalkthrough3Animate] = React.useState(false);
+
+    const [walkthrough4Animate, setWalkthrough4Animate] = React.useState(false);
+
     const onViewChangeRef = React.useRef(({ viewableItems, changed }) => {
         if (viewableItems[0].index == 1) { // Walktrough 2
             setWalkthrough2Animate(true);
+        } else if (viewableItems[0].index == 2) {
+            setWalkthrough3Animate(true);
+        } else if (viewableItems[0].index == 3) {
+            setWalkthrough4Animate(true);
         }
     })
 
@@ -155,6 +165,8 @@ const Walkthrough = () => {
                             >
                                 {index == 0 && <Walkthrough1 />}
                                 {index == 1 && <Walkthrough2 animate={walkthrough2Animate} />}
+                                {index == 2 && <Walkthrough3 animate={walkthrough3Animate} />}
+                                {index == 3 && <Walkthrough4 animate={walkthrough4Animate} />}
                             </View>
 
                             {/* Title & Description */}
