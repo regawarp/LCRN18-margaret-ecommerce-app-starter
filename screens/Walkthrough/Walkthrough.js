@@ -13,7 +13,7 @@ import Walkthrough2 from './Walkthrough2';
 import Walkthrough3 from './Walkthrough3';
 import Walkthrough4 from './Walkthrough4';
 
-const Walkthrough = () => {
+const Walkthrough = ({ navigation }) => {
 
     // Walkthrough 2
     const [walkthrough2Animate, setWalkthrough2Animate] = React.useState(false);
@@ -119,6 +119,12 @@ const Walkthrough = () => {
                         }}
                         labelStyle={{
                             ...FONTS.h3
+                        }}
+                        onPress={() => {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'AuthMain' }]
+                            })
                         }}
                     />
                 </View>
