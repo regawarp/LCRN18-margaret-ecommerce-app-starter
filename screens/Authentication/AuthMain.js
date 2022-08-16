@@ -30,7 +30,7 @@ import {
 } from '../../constants';
 import { onChange } from 'react-native-reanimated';
 
-const AuthMain = () => {
+const AuthMain = ({ navigation }) => {
 
     // States
     const [mode, setMode] = React.useState("signIn");
@@ -265,7 +265,9 @@ const AuthMain = () => {
                             labelStyle={{
                                 ...FONTS.h3
                             }}
-                            onPress={() => console.log("Log In")}
+                            onPress={() => {
+                                navigation.navigate("Home");
+                            }}
                         />
                     </View>
                 </Shadow>
