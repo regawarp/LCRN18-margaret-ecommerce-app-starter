@@ -4,7 +4,7 @@ import {
     Text,
     Image,
     Modal,
-    Flatlist,
+    FlatList,
     TouchableOpacity,
     TouchableWithoutFeedback,
     StyleSheet
@@ -17,7 +17,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import {
     TextButton,
     FormInput,
-    IconButton
+    IconButton,
+    CountryDropDown,
+    CheckBox
 } from '../../components';
 import {
     icons,
@@ -26,6 +28,7 @@ import {
     FONTS,
     SIZES
 } from '../../constants';
+import { onChange } from 'react-native-reanimated';
 
 const AuthMain = () => {
 
@@ -36,7 +39,98 @@ const AuthMain = () => {
     const [email, setEmail] = React.useState("");
     const [name, setName] = React.useState("");
     const [phone, setPhone] = React.useState("");
+    const [selectedCountry, setSelectedCountry] = React.useState(null);
     const [password, setPassword] = React.useState("");
+    const [termsChecked, setTermsChecked] = React.useState(false);
+
+    // Country
+    const [countries, setCountries] = React.useState([])
+    const [showCountryModal, setShowCountryModal] = React.useState(false)
+
+    React.useEffect(() => {
+        // Fetch countires
+        fetch("https://restcountries.com/v2/all")
+            .then(response => response.json())
+            .then(data => {
+                let countryData = data.map(item => {
+                    return {
+                        code: item.alpha2Code,
+                        name: item.name,
+                        callingCode: `+${item.callingCodes[0]}`,
+                        flag: `https://countryflagsapi.com/png/${item.alpha2Code}`
+                    }
+                })
+
+                setCountries(countryData)
+            })
+    }, [])
+
+    function renderCountryModal() {
+        return (
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showCountryModal}
+            >
+                <TouchableWithoutFeedback
+                    onPress={() => setShowCountryModal(false)}
+                >
+                    <View
+                        style={{
+                            flex: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: COLORS.dark80
+                        }}
+                    >
+                        <View
+                            style={{
+                                height: 400,
+                                width: SIZES.width * 0.8,
+                                backgroundColor: COLORS.light,
+                                borderRadius: SIZES.radius
+                            }}
+                        >
+                            <FlatList
+                                data={countries}
+                                keyExtractor={(item) => item.code}
+                                contentContainerStyle={{
+                                    paddingHorizontal: SIZES.padding,
+                                    paddingBottom: SIZES.padding,
+                                }}
+                                renderItem={({ item }) => {
+                                    return (
+                                        <TouchableOpacity
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                marginTop: SIZES.radius
+                                            }}
+                                            onPress={() => {
+                                                console.log(item)
+                                                setSelectedCountry(item)
+                                                setShowCountryModal(false)
+                                            }}
+                                        >
+                                            <Image
+                                                source={{ uri: item.flag }}
+                                                resizeMode="contain"
+                                                style={{
+                                                    width: 40,
+                                                    height: 30
+                                                }}
+                                            />
+                                            <Text style={{ flex: 1, marginLeft: SIZES.radius, ...FONTS.body3 }}>{item.name}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                }}
+                            />
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        )
+    }
 
     // Animation States
 
@@ -192,7 +286,155 @@ const AuthMain = () => {
                     <View
                         style={styles.authContainer}
                     >
+                        <Text
+                            style={{
+                                lineHeight: 45,
+                                ...FONTS.h1
+                            }}
+                        >
+                            Create New Account
+                        </Text>
 
+                        <KeyboardAwareScrollView
+                            enableOnAndroid={true}
+                            keyboardDismissMode="on-drag"
+                            keyboardShouldPersistTaps={"handled"}
+                            extraScrollHeight={-300}
+                            contentContainerStyle={{
+                                flexGrow: 1,
+                                marginTop: SIZES.padding,
+                                paddingBottom: SIZES.padding * 2
+                            }}
+                        >
+                            {/* Name */}
+                            <FormInput
+                                containerStyle={{
+                                    borderRadius: SIZES.radius,
+                                    backgroundColor: COLORS.error
+                                }}
+                                placeholder="Name"
+                                value={name}
+                                onChange={(text) => setName(text)}
+                                prependComponent={
+                                    <Image
+                                        source={icons.person}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            marginRight: SIZES.base
+                                        }}
+                                    />
+                                }
+                            />
+
+                            {/* Email */}
+                            <FormInput
+                                containerStyle={{
+                                    marginTop: SIZES.radius,
+                                    borderRadius: SIZES.radius,
+                                    backgroundColor: COLORS.error
+                                }}
+                                placeholder="Email"
+                                value={email}
+                                onChange={(text) => setEmail(text)}
+                                prependComponent={
+                                    <Image
+                                        source={icons.email}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            marginRight: SIZES.base
+                                        }}
+                                    />
+                                }
+                            />
+
+                            {/* Phone */}
+                            <FormInput
+                                containerStyle={{
+                                    marginTop: SIZES.radius,
+                                    borderRadius: SIZES.radius,
+                                    backgroundColor: COLORS.error
+                                }}
+                                placeholder="Phone"
+                                value={phone}
+                                onChange={(text) => setPhone(text)}
+                                prependComponent={
+                                    <Image
+                                        source={icons.phone}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            marginRight: SIZES.base
+                                        }}
+                                    />
+                                }
+                            />
+
+                            {/* Country */}
+                            <CountryDropDown
+                                containerStyle={{
+                                    marginTop: SIZES.radius
+                                }}
+                                selectedCountry={selectedCountry}
+                                onPress={() => setShowCountryModal(!showCountryModal)}
+                            />
+
+                            {/* Password */}
+                            <FormInput
+                                containerStyle={{
+                                    marginTop: SIZES.radius,
+                                    borderRadius: SIZES.radius,
+                                    backgroundColor: COLORS.error
+                                }}
+                                placeholder="Password"
+                                value={password}
+                                secureTextEntry={!isVisible}
+                                onChange={(text) => setPassword(text)}
+                                prependComponent={
+                                    <Image
+                                        source={icons.lock}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            marginRight: SIZES.base
+                                        }}
+                                    />
+                                }
+                                appendComponent={
+                                    <IconButton
+                                        icon={isVisible ? icons.eye_off : icons.eye}
+                                        iconStyle={{
+                                            tintColor: COLORS.grey
+                                        }}
+                                        onPress={() => setIsVisible(!isVisible)}
+                                    />
+                                }
+                            />
+
+                            {/* Terms and Conditions */}
+                            <CheckBox
+                                containerStyle={{
+                                    marginTop: SIZES.radius
+                                }}
+                                isSelected={termsChecked}
+                                onPress={() => setTermsChecked(!termsChecked)}
+                            />
+                        </KeyboardAwareScrollView>
+
+                        <TextButton
+                            label="Create Account"
+                            contentContainerStyle={{
+                                marginTop: SIZES.padding,
+                                height: 55,
+                                borderRadius: SIZES.radius,
+                                backgroundColor: COLORS.primary
+                            }}
+                            labelStyle={{
+                                ...FONTS.h3
+                            }}
+                            onPress={() => console.log("Create Account")}
+                        />
                     </View>
                 </Shadow>
 
@@ -216,6 +458,7 @@ const AuthMain = () => {
                 backgroundColor: COLORS.lightGrey
             }}
         >
+            {renderCountryModal()}
             {/* Logo */}
             <Image
                 source={images.logo}
@@ -245,6 +488,7 @@ const AuthMain = () => {
                 }}
             />
         </View>
+
     )
 }
 
